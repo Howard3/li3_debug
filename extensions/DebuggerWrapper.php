@@ -3,12 +3,11 @@
 namespace li3_debug\extensions;
 
 use lithium\core\Libraries;
-use li3_debug\extensions\FileStreamPersist;
 use lithium\util\String;
 use lithium\util\Set;
-use lithium\analysis\Debugger as Li3Debugger;
+use lithium\analysis\Debugger;
 
-class Debugger extends \lithium\core\StaticObject {
+class DebuggerWrapper extends \lithium\core\StaticObject {
 
 	protected static $_classes = array(
 		'file_stream_wrapper' => 'li3_debug\extensions\FileStreamWrapper',
@@ -17,13 +16,16 @@ class Debugger extends \lithium\core\StaticObject {
 
 	protected static $_regex = array();
 
-	protected static $_persist = array();
-
 	protected static $_model = 'li3_debug\models\Li3Debug';
 
 	protected static $_startTime = null;
 
 	protected static $_instanceId = null;
+
+	/**
+	 * @var $data Stores data for FileStreamWrapper.
+	 */
+	public static $data;
 
 	/**
 	 * @var array holds data about recursion depth.
@@ -32,7 +34,7 @@ class Debugger extends \lithium\core\StaticObject {
 
 	protected static $_strings = array(
 		'arguments' => 'readArguments(__METHOD__, func_get_args(), \'{:argsNoType}\')',
-		'orig_function' => '{:scope} {:static} function {:ref}{:prefix}{:name}({:args}) {',
+		'orig_function' => 'private {:static} function {:ref}{:prefix}{:name}({:args}) {',
 		'static_call_original_function' => 'self::{:prefix}{:name}({:argsNoType})',
 		'_call_original_function' => '$this->{:prefix}{:name}({:argsNoType})',
 		'wrap_return' => '{:debugger}::{:rec_return}(__METHOD__, {:function_call})',
@@ -48,10 +50,14 @@ class Debugger extends \lithium\core\StaticObject {
 		self::$_regex = compact('function', 'replaceArgTypes');
 		self::$_model = Libraries::get('li3_debug', 'model') ?: self::$_model;
 		self::$_startTime = microtime(true);
+
+		self::$data = array(
+			'isPHP' => false,
+			'fh' => null
+		);
 	}
 
 	public static function register() {
-		FileStreamPersist::init();
 		$wrapper = static::_instance('file_stream_wrapper');
 		stream_wrapper_unregister("file");
 		stream_wrapper_register("file", get_class($wrapper));
@@ -142,6 +148,27 @@ class Debugger extends \lithium\core\StaticObject {
 		return $return;
 	}
 
+	/**
+	 * Sets data for FileStreamWrapper
+	 * @static
+	 * @param $name
+	 * @param $value
+	 * @return void
+	 */
+	public static function set($name, $value) {
+		self::$data[$name] = $value;
+	}
+
+	/**
+	 * Gets data for FileStreamWrapper
+	 * @static
+	 * @param $name
+	 * @return null
+	 */
+	public static function get($name) {
+		return isset(self::$data[$name]) ? self::$data[$name] : null;
+	}
+
 	protected static function _alterDepth($method, $modifier) {
 		if (!isset(self::$_funcDepth[$method])) {
 			self::$_funcDepth[$method] = $modifier;
@@ -165,7 +192,7 @@ class Debugger extends \lithium\core\StaticObject {
 	protected static function _recordAction($action, $method = null, $depth = null, $data = null) {
 		return;
 		$model = self::$_model;
-		$data = Li3Debugger::export($data);
+		$data = Debugger::export($data);
 		$data = array(
 			'instance' => self::$_instanceId,
 			'start' => self::$_startTime,

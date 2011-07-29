@@ -1,11 +1,10 @@
 <?php
 
-use li3_debug\extensions\Debugger;
+use li3_debug\extensions\DebuggerWrapper;
 use lithium\data\Connections;
 use lithium\core\Libraries;
-use li3_debug\extensions\FileStreamPersist;
 
-Debugger::register();
+DebuggerWrapper::register();
 
 Connections::add('Li3Debug', array(
 		'type' => 'database',

@@ -2,7 +2,7 @@
 
 namespace li3_debug\extensions;
 
-use li3_debug\extensions\FileStreamPersist;
+use li3_debug\extensions\DebuggerWrapper;
 
 /**
  * File Stream Wrapper, this class is responsible for intercepting read files so that they can be
@@ -10,11 +10,11 @@ use li3_debug\extensions\FileStreamPersist;
  */
 class FileStreamWrapper {
 	public function __set($name, $value) {
-		FileStreamPersist::set($name, $value);
+		DebuggerWrapper::set($name, $value);
 	}
 
 	public function __get($name) {
-		return FileStreamPersist::get($name);
+		return DebuggerWrapper::get($name);
 	}
 
 	function stream_open($path, $mode, $options, &$opened_path) {
@@ -35,7 +35,7 @@ class FileStreamWrapper {
 		}
 
 		if ($this->isPHP && $this->data && !$this->readPos) {
-			$this->data = Debugger::attach($this->data);
+			$this->data = DebuggerWrapper::attach($this->data);
 		}
 
 		$return = substr($this->data, $this->readPos, $count);
