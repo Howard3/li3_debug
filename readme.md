@@ -24,3 +24,8 @@ much as possible.
             'lithium\template\helper\Html'
         )
     ));
+
+## Accessing debug information
+
+A route is defined to quickly access the debug panel by going to `/li3_debug`. Recorded
+information will be presented to you here.
