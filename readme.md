@@ -16,7 +16,7 @@ much as possible.
     Libraries::add('li3_debug', array(
         'connection' => array(
             'type' => 'MongoDb',
-            'host' => 'ds.lenddo.com',
+            'host' => 'localhost',
             'database' => 'li3_debug'
         ),
         'ignore' => array(
