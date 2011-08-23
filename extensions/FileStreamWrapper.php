@@ -18,10 +18,9 @@ class FileStreamWrapper {
 	}
 
 	function stream_open($path, $mode, $options, &$opened_path) {
-		$this->isPHP = pathinfo($path, PATHINFO_EXTENSION) === 'php';
-
 		$self = $this;
 		$this->fsAction(function() use ($path, $mode, $self) {
+				$self->isPHP = pathinfo($path, PATHINFO_EXTENSION) === 'php';
 				$self->fh = fopen($path, $mode);
 				$self->fileSize = !is_dir($path) ? filesize($path) : 0;
 				$self->readPos = 0;

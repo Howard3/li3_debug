@@ -4,13 +4,15 @@ use li3_debug\extensions\DebuggerWrapper;
 use lithium\data\Connections;
 use lithium\core\Libraries;
 
-DebuggerWrapper::register();
-
-Connections::add('Li3Debug', array(
+Connections::add('Li3Debug', Libraries::get('li3_debug', 'connection') ?: array(
 		'type' => 'database',
 		'adapter' => 'Sqlite3',
-		'database' => Libraries::get('li3_debug', 'database') ? : dirname(__DIR__) .
-				'/resources/li3debug.db'
+		'database' => dirname(__DIR__) . '/resources/li3debug.db'
 	));
+
+DebuggerWrapper::register();
+
+require __DIR__ . '/media.php';
+require __DIR__ . '/routes.php';
 
 ?>
